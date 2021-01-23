@@ -9,7 +9,7 @@ Module 1 Project for Creative Embedded Systems.
 This project involves running 2 programs on a raspberry pi on boot: 
 
 1. The generation of a dynamic wallpaper on an external monitor using Processing. The wallpaper procedurally generates realistic trees in a watercolor style as well as mountains. The leaves continue to change color every few seconds.
-2.  Python program connecting to the webAPI of timezonedb, displaying the time akin to a watch on a Freenove 8 RGB LED Module.   
+2.  Python program connecting to the webAPI of timezonedb, displaying Japan time akin to a watch on a Freenove 8 RGB LED Module.   
 
 
 
@@ -20,6 +20,13 @@ This project involves running 2 programs on a raspberry pi on boot:
 ### Program Installations
 
 1. Clone this github repo
+
+   ```
+   git clone https://github.com/bnhwa/GenerativeArt.git
+   ```
+
+   
+
 2. Processing on Raspberry PI: To install Processing, go to the Raspberry Pi shell and do:
 
 ```
@@ -33,5 +40,12 @@ curl https://processing.org/download/install-arm.sh | sudo sh
 
 
 ## <u>Running</u>
+
+modify your `/etc/rc.local` such that you put in the commands to run both programs
+
+```
+sudo processing-java <fullpath>/generativeWallpaper --run &
+sudo python3 <fullpath>/apiClock.py &
+```
 
 boot the pi and both programs should run. 
