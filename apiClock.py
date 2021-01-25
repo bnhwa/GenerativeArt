@@ -9,9 +9,18 @@ api key:   C7BV3SHDW5LP
 """
 import requests
 import time
-import importlib
 import board
 import neopixel
+
+
+import multiprocess
+from functools import reduce
+# install BeautifulSoup4 and google
+from bs4 import BeautifulSoup
+from googlesearch import search
+#install flask
+from flask import Flask
+
 pixel_pin = board.D21
 
 # The number of NeoPixels
@@ -28,7 +37,7 @@ pixels = neopixel.NeoPixel(
 def current_milli_time():
     return round(time.time() * 1000)
 
-def request(lat,lng):
+def coords_request(lat,lng):
     #params
     API_key = "C7BV3SHDW5LP"
     _format = "json"
@@ -36,25 +45,55 @@ def request(lat,lng):
     res = requests.get(_url,params=dict(key=API_key,by="position",format=_format,lat=lat,lng=lng)).json()
     if (res['status']=="OK"):
         start = time.time()
+        print(res)
         ts = res["formatted"].split(' ')[-1].split(":")
         #print(ts)
         secs = (3600*int(ts[0]))+(60*int(ts[1]))+int(ts[2])
         
         end = time.time()
-        return secs+(end-start)
         
+        # return secs+(end-start)
+        return {"curr_time":secs+(end-start),
+                "country":res["countryName"],
+                "municipality":res["zoneName"]
+            
+            }
+    
+def google_coords(query):
+    """
+    Web Scrape google for the feedback form for coordinates,
+    
+    """
+    h = {"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36"}
+    r = requests.get("https://www.google.ie/search?q={}+coordinates"\
+                   .format(' '.join(query.split()).replace(" ","+")), headers=h).text
+    soup = BeautifulSoup(r,"lxml")
+    search_res = soup.find("div", {"class": "Z0LcW XcVN5d"})#coordinates tag
+    if search_res is None:
+        pass
     else:
-        print("check your internet connection")
-    # print(res)
-    # print(res.json())
-
+        rep={"° N":"*1",
+             "° S":"*-1",
+             "° E":"*1",
+             "° W":"*-1"
+             }
+        res = search_res.text
+        for k,v in rep.items():
+            res = res.replace(k,v)
+        #latitude north ° N
+        # print(res)
+        u_lat, u_long = list(map(lambda x: reduce((lambda y, z: y * z), map(lambda k: float(k), x.split("*")))   ,\
+                                 res.split(",")))
+        #print(u_lat, u_long)
+        return (u_lat,u_long)
+    
 def main():
     lat = 35.6762
     lng = 139.6503
     #lat = 51.5074
     #lng = -0.1278
     totsec = 86400
-    ctr = request(lat,lng)
+    ctr = coords_request(lat,lng)["curr_time"]
     print("initialized")
     #print(ctr)
     #print(ctr/86400)

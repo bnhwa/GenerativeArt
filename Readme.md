@@ -8,8 +8,8 @@ Module 1 Project for Creative Embedded Systems.
 
 This project involves running 2 programs on a raspberry pi on boot: 
 
-1. The generation of a dynamic wallpaper on an external monitor using Processing. The wallpaper procedurally generates realistic trees in a watercolor style as well as mountains. The leaves continue to change color every few seconds.
-2.  Python program connecting to the webAPI of timezonedb, displaying Japan time akin to a watch on a Freenove 8 RGB LED Module.   
+1. The generation of a dynamic wallpaper on an external monitor using Processing, which the and displays the time based on a user search. The wallpaper procedurally generates realistic trees in a watercolor style as well as mountains. The leaves continue to change color every few seconds. The wallpaper's background is dependent on the area of interest the user searched for.
+2.  Python program connecting to the webAPI of timezonedb, displaying the searched location  akin to a watch on a Freenove 8 RGB LED Module.   
 
 
 
@@ -34,6 +34,17 @@ curl https://processing.org/download/install-arm.sh | sudo sh
 ```
 
 3. Follow the instructions on to install the relevant libraries [Neopixel libraries](https://learn.adafruit.com/neopixels-on-raspberry-pi/overview )
+
+4. the google, BeautifulSoup,  multiprocess, and Flask libraries need to be installed. You can do this with pip (if you have pip3 use it instead)
+
+   ```
+   pip install beautifulsoup4
+   pip install google
+   pip install multiprocess
+   pip install Flask
+   ```
+
+   
 
 ### Hardware Setup
 

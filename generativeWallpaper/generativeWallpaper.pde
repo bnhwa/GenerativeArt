@@ -1,15 +1,23 @@
+import controlP5.*;
+ControlP5 cp5;
 /*Bailey Hwa
  project 1 for Columbia Creative Embedded Systems
  
  Generative art
- 
+ requires controlP5
  */
+time 
 long time = millis();
+boolean errMsg = false;
 abstractTree theTree;
 void setup() {
   fullScreen();
   theTree = new abstractTree();
   theTree.init();
+  ControlFont cf2 = new ControlFont(createFont("Times",width/35));
+  cp5 = new ControlP5(this);
+  cp5.addTextfield("Search City").setPosition(width/35, height/10).setSize(width/3, width/35).setAutoClear(true).setFont(cf2);
+  cp5.addBang("Submit").setPosition((width/35)+(width/3), height/10).setSize(width/8, width/35).setFont(cf2); 
 }
 
 void draw() {
@@ -19,10 +27,10 @@ void draw() {
     time = millis();
     theTree.drawLeafs(10, int(theTree.twidth/11));
   }
-}
-void mousePressed() {
-  //theTree.drawLeafs(10, int(theTree.twidth/11));
-  //theTree.createBackground();
+  if (errMsg){
+    text("No search results",(width/35)+(width/3),(height/10)+(width/35));
+  }
+  
 }
 
 class abstractTree {
@@ -196,4 +204,11 @@ class Leaf {
     this.y=y;
     this.a=a;
   }
+}
+//gui/external comm
+void Submit() {
+  print("the following text was submitted :");
+  String url1 = cp5.get(Textfield.class,"Search City").getText();
+  print(" textInput 1 = " + url1);
+  println();
 }
