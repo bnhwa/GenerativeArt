@@ -10,6 +10,7 @@ long time = millis();
 boolean errMsg = false;
 abstractTree theTree;
 void setup() {
+  print("fuckoff");
   fullScreen();
   theTree = new abstractTree();
   theTree.init();
