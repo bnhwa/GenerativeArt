@@ -6,32 +6,33 @@ ControlP5 cp5;
  Generative art
  requires controlP5
  */ 
-long time = millis();
 boolean errMsg = false;
-abstractTree theTree;
+Clock clock;
+//abstractTree theTree;
 void setup() {
-  print("fuckoff");
+  abstractTree theTree;
   fullScreen();
   theTree = new abstractTree();
   theTree.init();
+  clock = new Clock(theTree);
   ControlFont cf2 = new ControlFont(createFont("Times",width/35));
   cp5 = new ControlP5(this);
-  cp5.addTextfield("Search City").setPosition(width/35, height/10).setSize(width/3, width/35).setAutoClear(true).setFont(cf2);
+  cp5.addTextfield("Search Place").setPosition(width/35, height/10).setSize(width/3, width/35).setAutoClear(true).setFont(cf2);
   cp5.addBang("Submit").setPosition((width/35)+(width/3), height/10).setSize(width/8, width/35).setFont(cf2); 
+  htmlReq("Washington DC");
 }
 
 void draw() {
-  theTree.display();
-  //println((millis()-time));
-  if ((millis()-time) > 4000){
-    time = millis();
-    theTree.drawLeafs(10, int(theTree.twidth/11));
-  }
+  fill(255*(1-clock.skyPct));
+  colorMode(HSB,360,100,100);
+  textSize(width/30);
+  background(clock.getColor());
+  //sky color gets darkest at midnight and brightest at noon
+  clock.update();
   if (errMsg){
     
     text("No search results",(width/35)+(width/3),(height/10)+(width/35));
   }
-  
 }
 
 class abstractTree {
@@ -45,8 +46,6 @@ class abstractTree {
   PGraphics leaves;
   ArrayList<Leaf> leafs = new ArrayList<Leaf>();
   color leafCol;
-  //float minHue;
-  //float maxHue;
   //http://localhost:8888/
   abstractTree() {
     this.n = 0; // noise input
@@ -57,7 +56,6 @@ class abstractTree {
     this.leaves = createGraphics(this.twidth, this.theight);
     this.minLevel = 4;
     this.maxLevel = 10;
-    //print();
   }
   void init() {
     clear();
@@ -87,7 +85,7 @@ class abstractTree {
     //tree.beginDraw();
     this.tree.beginDraw();
     this.tree.noStroke();//int((crt*70)/250)
-    this.tree.background(0, 0);  // clear PGraphics
+    //this.tree.background(0, 0);  // clear PGraphics
     for (int i = 0; i < nBranches-1; i++) {
       this.tree.fill(map(i, 0, 2, 60, 20));//front and back layers of branches, front has darker gradient
       this.branch(this.twidth/2, this.theight, int((bLength*70)/random(248, 255)), -HALF_PI, random(bLength, bLength+10), 0);
@@ -147,9 +145,7 @@ class abstractTree {
     this.tree.rotate(theta);
     this.tree.quad(0, -diam/2, 2*diam, -diam/6, 2*diam, diam/6, 0, diam/2);
     this.tree.pop();
-    //this.leafs.add(new Leaf(x,y,map(level,this.minLevel,this.maxLevel,0,1)));
   }
-
 
 
   void drawLeafs( float minDiam, float maxDiam) {
@@ -189,9 +185,6 @@ class abstractTree {
       }
       offset+=0.0005;//lower offset, less dramatic mountains
     }
-
-
-
     this.bg.endDraw();
   }
 }
@@ -208,8 +201,96 @@ class Leaf {
 }
 //gui/external comm
 void Submit() {
+  
   print("the following text was submitted :");
-  String url1 = cp5.get(Textfield.class,"Search City").getText();
-  print(" textInput 1 = " + url1);
+  String url1 = cp5.get(Textfield.class,"Search Place").getText();
+  print(" Search Place = " + url1);
+  htmlReq(url1);
   println();
+}
+
+void htmlReq(String place){
+  JSONObject resp;
+  String query_ = "http://localhost:8025/search/"+place;
+  resp = loadJSONObject(query_.replace(" ","&&"));
+  long start = millis();
+  if (resp == null){
+    println("err");
+  }else if (resp.getBoolean("success")){
+    println("");
+    //println(resp.get("success"));
+    long timeDiff = int((millis()-start)/1000);
+    println(timeDiff);
+    clock.set(resp.getString("country"),resp.getString("city"),
+    resp.getInt("curr_time"));
+  }
+}
+
+
+//clock
+class Clock{
+  long time;
+  long totSecs;
+  String country="USA";
+  String city ="DC";
+  int hours=0;
+  int mins=0;
+  int secs=0;
+  float skyPct;
+  color skyColor = color(230,238,255);
+  //hsv 220,100,100
+  abstractTree tree;
+  Clock(abstractTree tree){
+    this.tree=tree;
+    this.time=millis();
+  }
+  void set(String country, String city, int secsIn){
+    this.country=country;
+    this.city = city;
+    if(secsIn > 86400){
+      secsIn = secsIn % 86400;
+    }
+    this.hours = secsIn/3600;
+    this.mins=(secsIn/60)-(this.hours*60);
+    this.secs = secsIn-(this.mins*60)-(this.hours*3600);
+  }
+  String timeStr(){
+    return str(this.hours)+" : " + str(this.mins)+" : "
+    + str(this.secs)+ " \nin "+this.city+","+this.country;
+  }
+  void update(){
+    fill(255*(1-clock.skyPct));
+    text(this.timeStr(),(width/35)+(width/2),(width/35)+ (height/10));
+    this.tree.display();
+    if ((millis()-this.time) > 1000){
+      this.time = millis();
+      this.secs++;
+      this.totSecs++;
+      if(this.totSecs>86400) this.totSecs=0;
+    }
+    if(this.secs>60){
+      this.secs=0;
+      this.mins+=1;
+    }
+    if(this.mins>60){
+      //update sky color and leaves every minutes
+      this.tree.drawLeafs(10, int(this.tree.twidth/11));
+      this.mins=0;
+      this.hours+=1;    
+    }
+    if(this.hours>24){
+      this.hours=0;
+      this.secs=0;
+      this.mins=0;
+    }
+  }
+  void updateSky(){
+    float pct = this.totSecs/86400;
+    this.skyPct = (-1*(abs(pct-0.5)))+1; //<>//
+    //color(230,238,255);
+    this.skyColor = color(220,   100, this.skyPct);
+  }
+  color getColor(){
+    return this.skyColor;
+  }
 }
