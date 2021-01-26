@@ -5,8 +5,7 @@ ControlP5 cp5;
  
  Generative art
  requires controlP5
- */
-time 
+ */ 
 long time = millis();
 boolean errMsg = false;
 abstractTree theTree;
@@ -28,6 +27,7 @@ void draw() {
     theTree.drawLeafs(10, int(theTree.twidth/11));
   }
   if (errMsg){
+    
     text("No search results",(width/35)+(width/3),(height/10)+(width/35));
   }
   
@@ -46,7 +46,7 @@ class abstractTree {
   color leafCol;
   //float minHue;
   //float maxHue;
-
+  //http://localhost:8888/
   abstractTree() {
     this.n = 0; // noise input
     this.twidth = int(width);//windowWidth;

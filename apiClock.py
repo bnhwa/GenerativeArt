@@ -13,21 +13,21 @@ import board
 import neopixel
 
 
-import multiprocess
+from multiprocess import Process
 from functools import reduce
 # install BeautifulSoup4 and google
 from bs4 import BeautifulSoup
 from googlesearch import search
 #install flask
 from flask import Flask
+from flask import Response, request, jsonify,send_from_directory
 
 pixel_pin = board.D21
 
 # The number of NeoPixels
 num_pixels = 8
 
-# The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
-# For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
+
 ORDER = neopixel.GRB
 
 pixels = neopixel.NeoPixel(
@@ -87,7 +87,8 @@ def google_coords(query):
         #print(u_lat, u_long)
         return (u_lat,u_long)
     
-def main():
+    
+def control_clock():
     lat = 35.6762
     lng = 139.6503
     #lat = 51.5074
@@ -111,8 +112,14 @@ def main():
         pixels.show()
         ctr+=1
         #pixels.show()
-        time.sleep(1)
+        time.sleep(1)    
+    
+def main():
+    control_clock()
 
 
 if __name__ == "__main__":
+    # app.debug = True
+    #Process(target=app.run( kwargs=dict(host="127.0.0.1",port=8025)).start())
+    #Process(target=control_clock).start()
     main()
