@@ -144,9 +144,10 @@ def control_clock():
             ctr = 0
         #if daytime disp red,
         #nighttime display blue
+        #abs(  ctr-(43200))/43200 
         
         sel = cols[0]  if (ctr<(totsec/2)) else cols[1]
-        for i in range(int(num_pixels*( abs(  ctr-(43200))/43200    ))):
+        for i in range(int(num_pixels*( ctr/totsec   ))):
             pixels[i] = sel
         pixels.show()
         ctr+=1

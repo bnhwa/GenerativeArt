@@ -15,10 +15,10 @@ void setup() {
   theTree = new abstractTree();
   theTree.init();
   clock = new Clock(theTree);
-  ControlFont cf2 = new ControlFont(createFont("Times",width/35));
+  ControlFont cf2 = new ControlFont(createFont("Times",width/40));
   cp5 = new ControlP5(this);
-  cp5.addTextfield("Search Place").setPosition(width/35, height/10).setSize(width/3, width/35).setAutoClear(true).setFont(cf2);
-  cp5.addBang("Submit").setPosition((width/35)+(width/3), height/10).setSize(width/8, width/35).setFont(cf2); 
+  cp5.addTextfield("Search Place").setPosition(width/40, height/10).setSize(width/3, width/40).setAutoClear(true).setFont(cf2);
+  cp5.addBang("Submit").setPosition((width/40)+(width/3), height/10).setSize(width/8, width/40).setFont(cf2); 
   htmlReq("Washington DC");
 }
 
@@ -31,7 +31,7 @@ void draw() {
   clock.update();
   if (errMsg){
     
-    text("No search results",(width/35)+(width/3),(height/10)+(width/35));
+    text("No search results",(width/40)+(width/3),(height/10)+(width/40));
   }
 }
 
@@ -230,7 +230,7 @@ void htmlReq(String place){
 //clock
 class Clock{
   long time;
-  long totSecs;
+  float totSecs;
   String country="USA";
   String city ="DC";
   int hours=0;
@@ -253,20 +253,22 @@ class Clock{
     this.hours = secsIn/3600;
     this.mins=(secsIn/60)-(this.hours*60);
     this.secs = secsIn-(this.mins*60)-(this.hours*3600);
+    this.totSecs=secsIn;
+    this.updateSky();
   }
   String timeStr(){
     return str(this.hours)+" : " + str(this.mins)+" : "
-    + str(this.secs)+ " \nin "+this.city+","+this.country;
+    + str(this.secs)+ " \n "+this.city+"\n"+this.country;
   }
   void update(){
     fill(255*(1-clock.skyPct));
-    text(this.timeStr(),(width/35)+(width/2),(width/35)+ (height/10));
+    text(this.timeStr(),(width/40)+(width/2),(width/40)+ (height/10));
     this.tree.display();
     if ((millis()-this.time) > 1000){
       this.time = millis();
       this.secs++;
       this.totSecs++;
-      if(this.totSecs>86400) this.totSecs=0;
+      if(this.totSecs>86400) {this.totSecs=0;}
     }
     if(this.secs>60){
       this.secs=0;
@@ -274,6 +276,7 @@ class Clock{
     }
     if(this.mins>60){
       //update sky color and leaves every minutes
+      this.updateSky();
       this.tree.drawLeafs(10, int(this.tree.twidth/11));
       this.mins=0;
       this.hours+=1;    
@@ -285,10 +288,14 @@ class Clock{
     }
   }
   void updateSky(){
+    println(this.totSecs);
     float pct = this.totSecs/86400;
+    println(this.totSecs/86400);
     this.skyPct = (-1*(abs(pct-0.5)))+1; //<>//
     //color(230,238,255);
-    this.skyColor = color(220,   100, this.skyPct);
+    colorMode(HSB,360,100,100);
+    println(this.skyPct*100);
+    this.skyColor = color(220,   100, this.skyPct*100);
   }
   color getColor(){
     return this.skyColor;
