@@ -56,7 +56,9 @@ This project involves running 2 programs on a raspberry pi on boot:
 
 ## <u>Running</u>
 
-modify your `/etc/rc.local` such that you put in the commands to run both programs
+modify your `\home\pi\.bashrc` file.
+
+First call `sudo nano \home\pi\.bashrc`
 
 ```
 sudo processing-java sketch=<fullpath>/generativeWallpaper --run &
