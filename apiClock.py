@@ -11,14 +11,17 @@ import requests
 import time
 import board
 import neopixel
+import sys
+#print(os.path.dirname(multiprocess.__file__))
+sys.path.append(r"/home/pi/.local/lib/python3.7/site-packages/")
 
+#sys.path.add(r"/home/pi/.local/lib/python3.7/site-packages/googlesearch/")
 
 from multiprocess import Process
 from functools import reduce
 # install BeautifulSoup4 and google
 from bs4 import BeautifulSoup
-from googlesearch import search
-#install flask
+import googlesearch#install flask
 from flask import Flask
 from flask import Response, request, jsonify,send_from_directory
 
@@ -33,7 +36,7 @@ ORDER = neopixel.GRB
 pixels = neopixel.NeoPixel(
     pixel_pin, num_pixels, brightness=0.2, auto_write=False, pixel_order=ORDER
 )
-
+app = Flask(__name__)
 def current_milli_time():
     return round(time.time() * 1000)
 
@@ -120,6 +123,6 @@ def main():
 
 if __name__ == "__main__":
     # app.debug = True
-    #Process(target=app.run( kwargs=dict(host="127.0.0.1",port=8025)).start())
-    #Process(target=control_clock).start()
-    main()
+    #print(0)
+    Process(target=app.run, kwargs=dict(host="127.0.0.1",port=8025)).start()
+    Process(target=control_clock).start()#
