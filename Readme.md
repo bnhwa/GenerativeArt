@@ -35,6 +35,8 @@ This project involves running 2 programs on a raspberry pi on boot:
    curl https://processing.org/download/install-arm.sh | sudo sh
    ```
 
+   On Processing, go to import library and download controlP5
+
 3. Follow the instructions on to install the relevant libraries [Neopixel libraries](https://learn.adafruit.com/neopixels-on-raspberry-pi/overview )
 
 4. the google, BeautifulSoup,  multiprocess, and Flask libraries need to be installed. You can do this with pip (if you have pip3 use it instead)
