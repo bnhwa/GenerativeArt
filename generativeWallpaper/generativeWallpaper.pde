@@ -254,6 +254,7 @@ class Clock{
     this.mins=(secsIn/60)-(this.hours*60);
     this.secs = secsIn-(this.mins*60)-(this.hours*3600);
     this.totSecs=secsIn;
+    this.tree.drawLeafs(10, int(this.tree.twidth/11));
     this.updateSky();
   }
   String timeStr(){
