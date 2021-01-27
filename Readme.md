@@ -52,22 +52,31 @@ Demo of the entire system, pi+external clock
    pip install Flask
    ```
 
-   
+5. Go to `apiClock.py` (and if you want to run this on standalone computer go to `apiClockNonPi.py`if you want to run this on regular desktop) and get an api key from [timezonedb](https://timezonedb.com/api). In the relevant file, change the `API_key` variable to the key you have.
 
-### Hardware Setup
+   ### For the Pi Specifically
 
+   1. Open Processing and export `generativeWallpaper.pde`to executable; you do this by going to the processing IDE to File->Export Application. When prompted, you want to choose Linux for the pi and only need the `application.linux-armv6hf` folder that is produced
 
+   2. Add to the end of your bashrc (i.e., edit the file via `sudo nano /home/pi/.bashrc`) the following, as well as the execution for the pi. Make sure to use the full absolute paths!
+
+      ```
+      sudo /home/pi/<your directory to the sketch folder>/application.linux-armv6hf /<the executable>
+      
+      sudo python3 /home/pi/<your directory to the python file>/apiClock.py
+      ```
+
+### Hardware Setup (only for the pi)
+
+1. Follow [here](https://learn.adafruit.com/neopixels-on-raspberry-pi/raspberry-pi-wiring) , specifically the section, 'Raspberry Pi Wiring with Diode'. However, what I did was use GPIO 21 instead of 18 (the program is also configured for 21) due to weird behavior of GPIO 18. I also used GPIO 2 (the 5v GPIO) on the Pi in lieu of the 'external 5v power source' mentioned and the ground GPIO 6 for the respective ground.
 
 ## <u>Running</u>
 
-modify your `\home\pi\.bashrc` file.
+### On the Pi:
 
-First call `sudo nano \home\pi\.bashrc`
+If you followed all the instructions, upon rebooting the pi, both programs should run (it is slow to start up though).
 
-```
-sudo processing-java sketch=<fullpath>/generativeWallpaper --run &
-sudo python3 <fullpath>/apiClock.py &
-```
+### On a Regular Computer:
 
-boot the pi and both programs should run. 
+Go to the directory of `apiClockNonPi.py` and run `python apiClockNonPi.py` first. Then, run the Processing Sketch. Voila.
 
