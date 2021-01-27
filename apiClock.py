@@ -14,12 +14,10 @@ import neopixel
 import sys
 import datetime
 
-#print(os.path.dirname(multiprocess.__file__))
-
 sys.path.append(r"/home/pi/.local/lib/python3.7/site-packages/")
 
-
-from multiprocess import Process
+import multiprocess
+from multiprocess import Process, Manager, Value
 from functools import reduce
 # install BeautifulSoup4 and google
 from bs4 import BeautifulSoup
@@ -43,12 +41,18 @@ pixels = neopixel.NeoPixel(
 app = Flask(__name__)
 #clock globals
 totsec = 86400
-ctr = 0
+#ctr = 0
+loc_now = True
+
+#manager = Manager()
+ctr = multiprocess.Value('i',0)
+tf = multiprocess.Value('i',1)
 @app.route("/search/<query>")
 def coord_query(query):
     """
     Web API server query
     """
+    global tf
     if query is None: return jsonify(success = False)
     query = query.replace("&&"," ")
     
@@ -56,6 +60,8 @@ def coord_query(query):
     if (lat is not None and long is not None):
         res = coords_request(lat,long)
         if (res is not None):
+            with tf.get_lock():
+                tf.value=0
             return jsonify(success=True,
                            curr_time=res["curr_time"],
                 country=res["country"],
@@ -64,7 +70,6 @@ def coord_query(query):
         else:
             return jsonify(success=False)
     
-    ret_test = 1
     return jsonify(data=ret_test,d2="4")
     
     
@@ -72,7 +77,7 @@ def current_milli_time():
     return round(time.time() * 1000)
 
 def coords_request(lat,lng):
-    global ctr, totsec
+    global ctr,tf
     #params
     API_key = "C7BV3SHDW5LP"
     _format = "json"
@@ -86,8 +91,10 @@ def coords_request(lat,lng):
         secs = (3600*int(ts[0]))+(60*int(ts[1]))+int(ts[2])
         
         end = time.time()
-        ctr = secs+(end-start)
-        return {"curr_time":ctr,
+        #ctr = secs+(end-start)
+        with ctr.get_lock():
+            ctr.value = int(secs+(end-start))
+        return {"curr_time":ctr.value,
                 "country":format_none(res["countryName"]),
                 "city":format_none(res["zoneName"])            
             }
@@ -127,35 +134,45 @@ def google_coords(query):
     
     
 def control_clock():
-    global ctr, totsec
+    global ctr, totsec,tf
     #default settings
     
-    lat, lng = google_coords("Washington DC")
+    lat, lng = google_coords("Washington Dc")
     coords_request(lat,lng)
+    
     print("initialized")
     
-    print(ctr)
-    print(ctr/86400)
-    print(len(pixels))
-    print(abs(  ctr-(43200))/totsec)
+    #print(ctr)
+    #print(ctr/86400)
+    #print(len(pixels))
+    print(abs(  ctr.value-(43200))/totsec)
     cols = [(255,0,0),(25,23,225)]
     while(True):
-        if (ctr>totsec):
-            ctr = 0
-        #if daytime disp red,
-        #nighttime display blue
-        #abs(  ctr-(43200))/43200 
-        
-        sel = cols[0]  if (ctr<(totsec/2)) else cols[1]
-        for i in range(int(num_pixels*( ctr/totsec   ))):
-            pixels[i] = sel
-        pixels.show()
-        ctr+=1
-        #pixels.show()
-        time.sleep(1)    
+        if (tf.value ):
+            if (ctr.value>totsec):
+                with ctr.get_lock():
+                    ctr.value = 0
+            #if daytime disp red,
+            #nighttime display blue
+            #abs(  ctr.value-(43200))/43200 
+            
+            sel = cols[0]  if (ctr.value<(totsec/2)) else cols[1]
+            for i in range(int(num_pixels*(   ctr.value/totsec  ))):
+                pixels[i] = sel
+            pixels.show()
+            with ctr.get_lock():
+                ctr.value+=1
+            #pixels.show()
+            time.sleep(1)
+        else:
+            #reset leds
+            pixels.fill((0,0,0))
+            with tf.get_lock():
+                tf.value = 1
+
     
-def main():
-    control_clock()
+#def main():
+#    control_clock()
 
 
 if __name__ == "__main__":

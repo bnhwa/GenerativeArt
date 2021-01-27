@@ -291,7 +291,7 @@ class Clock{
     println(this.totSecs);
     float pct = this.totSecs/86400;
     println(this.totSecs/86400);
-    this.skyPct = (-1*(abs(pct-0.5)))+1; //<>//
+    this.skyPct = (-2*(abs(pct-0.5)))+1; //<>//
     //color(230,238,255);
     colorMode(HSB,360,100,100);
     println(this.skyPct*100);
