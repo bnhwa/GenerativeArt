@@ -15,7 +15,7 @@ This project involves running 2 programs on a raspberry pi on boot:
 
 Demo of the Art/server [here](https://youtu.be/PQb85eTswbk)
 
-Demo of the entire system, pi+external clock
+Demo of the entire system, pi+external clock [here](https://youtu.be/1JxEAqWM8Oc)
 
 
 
